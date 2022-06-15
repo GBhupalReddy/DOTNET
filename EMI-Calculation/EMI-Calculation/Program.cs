@@ -1,6 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using EMI_Calculator;
-Console.WriteLine("Enter How Much Amount You Want");
+Console.WriteLine("Enter How Much of Amount You Want");
 long Amount=Convert.ToInt64(Console.ReadLine());
 Calculator.Calculation(Amount);
 Console.WriteLine("Enter How many Months of EMI");

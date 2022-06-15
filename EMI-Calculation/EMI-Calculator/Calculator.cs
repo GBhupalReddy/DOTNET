@@ -4,7 +4,7 @@
     {
         public static void Calculation(long Amount)
         {
-            long Percentage = (Amount / 100) * 10;
+            long Percentage = (Amount / 100) * 5;
             Console.WriteLine($"1  month You Pay Amount is  : {(Amount + (Percentage * 1))/1}");
             Console.WriteLine($"2  month You Pay Amount is  : {(Amount + (Percentage * 2)) / 2}");
             Console.WriteLine($"3  month You Pay Amount is  : {(Amount + (Percentage * 3)) / 3}");
@@ -20,7 +20,7 @@
         }
         public static long Emi(long Amount, int Months)
         {
-            long EmiPercentage = (Amount / 100) * 10;
+            long EmiPercentage = (Amount / 100) * 5;
             long TotalAmount = Amount + (EmiPercentage * Months);
             long MonthPay = TotalAmount / Months;
             return MonthPay;
