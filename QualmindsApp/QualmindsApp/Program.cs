@@ -27,7 +27,7 @@ string addingResult = Console.ReadLine();
         string Name=Console.ReadLine();
         Console.WriteLine("Please Enter Designation");
         string Designation = Console.ReadLine();
-        var  employeename = employeeservice.AddEmployee(new Employee { Name = Name, Designation = Designation });
+        employeeservice.AddEmployee(new Employee { Name = Name, Designation = Designation });
         Console.WriteLine("Do you want Adding More Employees Details please enter Yes else No");
         string addingResult1 = Console.ReadLine();
         Add(addingResult1);
@@ -40,5 +40,12 @@ string addingResult = Console.ReadLine();
         StringBuilder employees = employeeservice.GetEmployees();
         Console.WriteLine("ID \t\t\t\t\t  Name \t\t Designation");
         Console.WriteLine(employees);
+    }
+    Console.WriteLine("Do You Want Delete the File Please Enter Yes ");
+    string deleteResult=Console.ReadLine();
+    if(deleteResult == "Yes")
+    {
+        employeeservice.DeleteEmployees();
+        
     }
 }

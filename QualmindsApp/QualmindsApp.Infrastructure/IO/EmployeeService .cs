@@ -66,7 +66,8 @@ namespace QualmindsApp.Infrastructure.IO
 
         public void DeleteEmployees()
         {
-            //File.Delete(_filePath);
+            File.Delete(_filePath);
+            Console.WriteLine("Successfully Delete File");
         }
 
     }
