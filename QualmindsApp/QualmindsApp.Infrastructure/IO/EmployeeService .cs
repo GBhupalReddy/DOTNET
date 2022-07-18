@@ -9,9 +9,7 @@ namespace QualmindsApp.Infrastructure.IO
     {
         private readonly string _filePath;
         public Employee employee;
-        StringBuilder stres=new StringBuilder();
-
-
+        StringBuilder employeeDeatails= new StringBuilder();
         public EmployeeService(string filePath)
         {
             _filePath = filePath;
@@ -47,29 +45,24 @@ namespace QualmindsApp.Infrastructure.IO
             File.AppendAllText(_filePath, $"{employee.Id}{FileConstants.Delimeter}{employee.Name}{FileConstants.Delimeter}{employee.Designation}\n");
             return employee;
         }
-
-        public IEnumerable<Employee> AddEmployees(IEnumerable<Employee> employees)
+        public IEnumerable<Employee> AddEmployees(IEnumerable<Employee> employees) 
         {
             throw new NotImplementedException();
         }
-
         public StringBuilder GetEmployees()
         {
             var employeesCommaSeparatedList = File.ReadAllLines(_filePath).Skip(1);
             foreach (var employeeRow in employeesCommaSeparatedList)
             {
                 var employeeData = employeeRow.Split(FileConstants.Delimeter);
-                stres.AppendLine($"{Guid.Parse(employeeData[0])}\t {employeeData[1]}\t {employeeData[2]}");
+                employeeDeatails.AppendLine($"{Guid.Parse(employeeData[0])}\t {employeeData[1]}\t{employeeData[2]}");
             }
-            return stres;
+            return employeeDeatails;
         }
-
         public void DeleteEmployees()
         {
             File.Delete(_filePath);
             Console.WriteLine("Successfully Delete File");
         }
-
     }
-        
 }

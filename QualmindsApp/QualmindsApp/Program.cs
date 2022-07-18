@@ -10,7 +10,6 @@ string directory= Console.ReadLine();
 string directoryPath = directory;
 string fileName = "Employee.csv";
 IEmployeeService employeeservice = new EmployeeService(Path.Combine(directoryPath, fileName));
-StringBuilder StringBuilder = new StringBuilder();
 if (File.Exists((Path.Combine(directoryPath, fileName))))
 {
 Console.WriteLine($"created {fileName} with predefined headers");
@@ -19,10 +18,10 @@ string addingResult = Console.ReadLine();
     Add(addingResult);
     void Add(string value)
     {
-        string result = "Yes";
-        if (result == value)
+        //string result = "Yes";
+        if (value=="Yes")
         {
-            Console.WriteLine("\n Adding Employees : \n");
+         Console.WriteLine("\n Adding Employees : \n");
         Console.WriteLine("Please Enter Employee Name");
         string Name=Console.ReadLine();
         Console.WriteLine("Please Enter Designation");
@@ -32,6 +31,14 @@ string addingResult = Console.ReadLine();
         string addingResult1 = Console.ReadLine();
         Add(addingResult1);
     }
+    else if(value!="No")
+     {
+        Console.WriteLine("Please enter valid Input");
+            Console.WriteLine("Do you want Adding Employees Details please enter Yes else No");
+            string addingResult = Console.ReadLine();
+            Add(addingResult);
+        }
+      
 }
     Console.WriteLine("Do You Want Display Employees Please Enter Yes");
     string dipalplayResult = Console.ReadLine();
