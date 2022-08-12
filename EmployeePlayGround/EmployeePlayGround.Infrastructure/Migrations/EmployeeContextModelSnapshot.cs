@@ -16,7 +16,7 @@ namespace EmployeePlayGround.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.7")
+                .HasAnnotation("ProductVersion", "6.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -24,81 +24,63 @@ namespace EmployeePlayGround.Infrastructure.Migrations
             modelBuilder.Entity("EmployeePlayGround.Core.Entities.Department", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnOrder(1);
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Department", "Emp");
+                    b.ToTable("Department", (string)null);
                 });
 
             modelBuilder.Entity("EmployeePlayGround.Core.Entities.Employee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnOrder(0);
+                        .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("DepartmentId")
-                        .HasColumnType("int")
-                        .HasColumnOrder(3);
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("Varchar(50)")
-                        .HasColumnOrder(1);
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Salary")
-                        .HasColumnType("decimal(8,2)")
-                        .HasColumnOrder(2);
+                        .HasColumnType("decimal(12,2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Employee", "Emp");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 6,
-                            DepartmentId = 2,
-                            Name = "Kameswari",
-                            Salary = 10000m
-                        },
-                        new
-                        {
-                            Id = 7,
-                            DepartmentId = 2,
-                            Name = "Naneet",
-                            Salary = 20000m
-                        });
+                    b.ToTable("Employee", (string)null);
                 });
 
             modelBuilder.Entity("EmployeePlayGround.Core.Entities.Employee", b =>
                 {
                     b.HasOne("EmployeePlayGround.Core.Entities.Department", "Department")
-                        .WithMany("employees")
+                        .WithMany("Employees")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_Employee_Department");
 
                     b.Navigation("Department");
                 });
 
             modelBuilder.Entity("EmployeePlayGround.Core.Entities.Department", b =>
                 {
-                    b.Navigation("employees");
+                    b.Navigation("Employees");
                 });
 #pragma warning restore 612, 618
         }

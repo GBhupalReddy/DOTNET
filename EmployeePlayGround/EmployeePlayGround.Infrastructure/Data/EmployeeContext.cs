@@ -1,30 +1,39 @@
 ﻿using EmployeePlayGround.Core.Entities;
-using EmployeePlayGround.Infrastructure.Repositories;
+using EmployeePlayGround.Infrastructure.Extension;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmployeePlayGround.Infrastructure.Data
 {
-    public  class EmployeeContext : DbContext
+    public partial class EmployeeContext : DbContext
     {
-       public DbSet<Employee> Employees { get; set; }
-        public DbSet<Department> Departments { get; set; }
-
-        protected  override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public EmployeeContext()
         {
-            optionsBuilder.UseSqlServer(@"Server= (localDb)\MSSQLLocalDB; DataBase=EmployeeGroundDB;Trusted_Connection=True;");
         }
+
+        public EmployeeContext(DbContextOptions<EmployeeContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<Department> Departments { get; set; } = null!;
+        public virtual DbSet<Employee> Employees { get; set; } = null!;
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer(@"Server= (localDb)\MSSQLLocalDB; DataBase=EmployeeGroundDB;Trusted_Connection=True;");
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Employee>().ToTable("Employee",schema:"Emp");
-            modelBuilder.Entity<Department>().ToTable("Department", schema: "Emp");
-            modelBuilder.Entity<Employee>().Property(e => e.Name).HasColumnType("Varchar(50)");
-            modelBuilder.Entity<Employee>().Property(e => e.Salary).HasColumnType("decimal(8,2)");
-            modelBuilder.Entity<Employee>().Property(e => e.Id).IsRequired();
+            modelBuilder.RegisterEntityConfigurations();
 
-            modelBuilder.Seed();
-                
-
+            OnModelCreatingPartial(modelBuilder);
         }
-    
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
