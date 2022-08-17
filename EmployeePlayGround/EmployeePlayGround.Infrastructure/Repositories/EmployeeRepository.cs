@@ -19,130 +19,74 @@ namespace EmployeePlayGround.Infrastructure.Repositories
             await _employeeContext.SaveChangesAsync();
             return employee;
         }
-        public async Task<IEnumerable<EmployeeDto>> GetEmployeeesAsync(int pageIndex,int pageSize,string sortField, string sortOrder="asc", string? filterText=null)
+
+        //Display the employees in order by
+        public async Task<IEnumerable<EmployeeDto>> GetEmployeesAsync(int pageIndex,int pageSize,string sortField, string sortOrder="asc", string? filterText=null)
         {
-            if(sortOrder=="des")
+            var employeesQuery = from employee in _employeeContext.Employees.Include(e => e.Department).Where ( emp => emp.Name.ToLower().Contains(filterText)
+                       || emp.Email.ToLower().Contains(filterText) || filterText.Equals(null))
+                         
+                         select new EmployeeDto
+                         {
+                             Id = employee.Id,
+                             Name = employee.Name,
+                             Salary = employee.Salary,
+                             Email = employee.Email,
+                             DepartmentName = employee.Department.Name
+                         };
+            if (sortOrder=="desc")
             {
-                IEnumerable<EmployeeDto> employeeQuery=null;
+                IEnumerable<EmployeeDto> employeeQuery= new List<EmployeeDto>();
                 switch (sortField)
                 {
                     case "Id":
-                         employeeQuery = (from employee in _employeeContext.Employees.Include(e => e.Department).OrderByDescending(e => e.Id)
-                                            select new EmployeeDto
-                                            {
-                                                Id = employee.Id,
-                                                Name = employee.Name,
-                                                Salary = employee.Salary,
-                                                Email= employee.Email,
-                                                DepartmentName = employee.Department.Name
-                                            });
+                        employeeQuery = await (employeesQuery.OrderByDescending(emp => emp.Id)).ToListAsync();
 
                         break;
                     case "Name":
-                        employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department).OrderByDescending(e => e.Name)
-                                        select new EmployeeDto
-                                        {
-                                            Id = employee.Id,
-                                            Name = employee.Name,
-                                            Salary = employee.Salary,
-                                            Email = employee.Email,
-                                            DepartmentName = employee.Department.Name
-                                        };
+                        employeeQuery = await (employeesQuery.OrderByDescending(emp => emp.Name)).ToListAsync();
                         break;
                     case "Salary":
-                        employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department).OrderByDescending(e => e.Salary)
-                                        select new EmployeeDto
-                                        {
-                                            Id = employee.Id,
-                                            Name = employee.Name,
-                                            Salary = employee.Salary,
-                                            Email = employee.Email,
-                                            DepartmentName = employee.Department.Name
-                                        };
+                        employeeQuery = await (employeesQuery.OrderByDescending(emp => emp.Salary)).ToListAsync();
                         break;
                     case "Email":
-                        employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department).OrderByDescending(e => e.Email)
-                                        select new EmployeeDto
-                                        {
-                                            Id = employee.Id,
-                                            Name = employee.Name,
-                                            Salary = employee.Salary,
-                                            Email = employee.Email,
-                                            DepartmentName = employee.Department.Name
-                                        };
+                        employeeQuery =await (employeesQuery.OrderByDescending(emp => emp.Email)).ToListAsync();
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
-                        break;
+                       
                 }
                  
-                return (from employee in employeeQuery
-                       where (filterText.Equals(null) || employee.Name.ToLower().Contains(filterText) 
-                       || employee.Email.ToLower().Contains(filterText) || employee.DepartmentName.ToLower().Contains(filterText))
-                       select employee).Skip((pageIndex - 1) * pageSize).Take(pageSize);
+                return employeeQuery.Skip((pageIndex - 1) * pageSize).Take(pageSize);
             }
             else
             {
-                IEnumerable<EmployeeDto> employeeQuery = null;
+                IEnumerable<EmployeeDto> employeeQuery = new List<EmployeeDto>();
                 switch (sortField)
                 {
                     case "Id":
-                        employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department).OrderBy(e => e.Id)
-                                        select new EmployeeDto
-                                        {
-                                            Id = employee.Id,
-                                            Name = employee.Name,
-                                            Salary = employee.Salary,
-                                            Email = employee.Email,
-                                            DepartmentName = employee.Department.Name
-                                        };
+                        employeeQuery = await (employeesQuery.OrderBy(emp => emp.Id)).ToListAsync();
                         break;
                     case "Name":
-                        employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department).OrderBy(e => e.Name)
-                                        select new EmployeeDto
-                                        {
-                                            Id = employee.Id,
-                                            Name = employee.Name,
-                                            Salary = employee.Salary,
-                                            Email = employee.Email,
-                                            DepartmentName = employee.Department.Name
-                                        };
+                        employeeQuery = await (employeesQuery.OrderBy(emp => emp.Name)).ToListAsync();
                         break;
                     case "Salary":
-                        employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department).OrderBy(e => e.Salary)
-                                        select new EmployeeDto
-                                        {
-                                            Id = employee.Id,
-                                            Name = employee.Name,
-                                            Salary = employee.Salary,
-                                            Email = employee.Email,
-                                            DepartmentName = employee.Department.Name
-                                        };
+                        employeeQuery = await (employeesQuery.OrderBy(emp => emp.Salary)).ToListAsync();
                         break;
                     case "Email":
-                        employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department).OrderBy(e => e.Email)
-                                        select new EmployeeDto
-                                        {
-                                            Id = employee.Id,
-                                            Name = employee.Name,
-                                            Salary = employee.Salary,
-                                            Email = employee.Email,
-                                            DepartmentName = employee.Department.Name
-                                        };
+                        employeeQuery = await (employeesQuery.OrderBy((emp) => emp.Email)).ToListAsync();
                         break;
                     default: throw new ArgumentOutOfRangeException();
-                        break;
-                              
+                        
 
                 }
 
-                return (from employee in employeeQuery
-                        where (filterText.Equals(null) || employee.Name.ToLower().Contains(filterText)
-                        || employee.Email.ToLower().Contains(filterText) || employee.DepartmentName.ToLower().Contains(filterText))
-                        select employee).Skip((pageIndex - 1) * pageSize).Take(pageSize);
+                return  employeeQuery.Skip((pageIndex - 1) * pageSize).Take(pageSize);
 
             }
         }
+
+        // Create new employee 
         public async Task CreateRangeAsync(IEnumerable<Employee> employees)
         {
             // Not ideal way to use DB Context instance here, instead use constuctor injection. 
@@ -152,19 +96,19 @@ namespace EmployeePlayGround.Infrastructure.Repositories
                 await employeeContext.SaveChangesAsync();
             }
         }
-        public async Task<IEnumerable<EmployeeDto>> GetEmployeesAsync()
-        {
-            var employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department)
-                                select new EmployeeDto
-                                {
-                                    Id = employee.Id,
-                                    Name = employee.Name,
-                                    Salary = employee.Salary,
-                                    DepartmentName = employee.Department.Name
-                                };
-            //return await _employeeContext.Employees.ToListAsync();
-            return await employeeQuery.ToListAsync();  // Executes DB Query in DB and Get results.
-        }
+        //public async Task<IEnumerable<EmployeeDto>> GetEmployeesAsync()
+        //{
+        //    var employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department)
+        //                        select new EmployeeDto
+        //                        {
+        //                            Id = employee.Id,
+        //                            Name = employee.Name,
+        //                            Salary = employee.Salary,
+        //                            DepartmentName = employee.Department.Name
+        //                        };
+        //    //return await _employeeContext.Employees.ToListAsync();
+        //    return await employeeQuery.ToListAsync();  // Executes DB Query in DB and Get results.
+        //}
        public async Task GetEmployeeDetailsAsync(int empId)
         {
             var employeeDeatails= from emp in _employeeContext.Employees.Where(e => e.Id.Equals(empId))

@@ -61,8 +61,6 @@ namespace EmployeePlayGround.Infrastructure.Repositories
 
         }
 
-
-
         public bool CheckDepatment(string depatmentName)
         {
             var result = from department in _employeeContext.Departments.Where(d => d.Name.Equals(depatmentName))
