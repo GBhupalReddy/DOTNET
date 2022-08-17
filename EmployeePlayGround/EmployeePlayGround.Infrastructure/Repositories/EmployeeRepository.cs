@@ -2,6 +2,7 @@
 using EmployeePlayGround.Core.Entities;
 using EmployeePlayGround.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace EmployeePlayGround.Infrastructure.Repositories
 {
@@ -18,15 +19,15 @@ namespace EmployeePlayGround.Infrastructure.Repositories
             await _employeeContext.SaveChangesAsync();
             return employee;
         }
-        public async Task<IEnumerable<EmployeeDto>> GetEmployeeesAsync(int pageIndex,int pageSize,string sortField, string sortOrder="asc", string filterText=null)
+        public async Task<IEnumerable<EmployeeDto>> GetEmployeeesAsync(int pageIndex,int pageSize,string sortField, string sortOrder="asc", string? filterText=null)
         {
-            if(sortOrder=="dse")
+            if(sortOrder=="des")
             {
                 IEnumerable<EmployeeDto> employeeQuery=null;
                 switch (sortField)
                 {
                     case "Id":
-                         employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department).OrderByDescending(e => e.Id)
+                         employeeQuery = (from employee in _employeeContext.Employees.Include(e => e.Department).OrderByDescending(e => e.Id)
                                             select new EmployeeDto
                                             {
                                                 Id = employee.Id,
@@ -34,7 +35,8 @@ namespace EmployeePlayGround.Infrastructure.Repositories
                                                 Salary = employee.Salary,
                                                 Email= employee.Email,
                                                 DepartmentName = employee.Department.Name
-                                            };
+                                            });
+
                         break;
                     case "Name":
                         employeeQuery = from employee in _employeeContext.Employees.Include(e => e.Department).OrderByDescending(e => e.Name)
@@ -69,9 +71,15 @@ namespace EmployeePlayGround.Infrastructure.Repositories
                                             DepartmentName = employee.Department.Name
                                         };
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                        break;
                 }
                  
-                return employeeQuery.Skip((pageIndex-1)*pageSize).Take(pageSize);
+                return (from employee in employeeQuery
+                       where (filterText.Equals(null) || employee.Name.ToLower().Contains(filterText) 
+                       || employee.Email.ToLower().Contains(filterText) || employee.DepartmentName.ToLower().Contains(filterText))
+                       select employee).Skip((pageIndex - 1) * pageSize).Take(pageSize);
             }
             else
             {
@@ -122,10 +130,17 @@ namespace EmployeePlayGround.Infrastructure.Repositories
                                             DepartmentName = employee.Department.Name
                                         };
                         break;
+                    default: throw new ArgumentOutOfRangeException();
+                        break;
+                              
+
                 }
 
-                return employeeQuery.Skip((pageIndex-1)*pageSize).Take(pageSize);
-                
+                return (from employee in employeeQuery
+                        where (filterText.Equals(null) || employee.Name.ToLower().Contains(filterText)
+                        || employee.Email.ToLower().Contains(filterText) || employee.DepartmentName.ToLower().Contains(filterText))
+                        select employee).Skip((pageIndex - 1) * pageSize).Take(pageSize);
+
             }
         }
         public async Task CreateRangeAsync(IEnumerable<Employee> employees)
@@ -150,7 +165,25 @@ namespace EmployeePlayGround.Infrastructure.Repositories
             //return await _employeeContext.Employees.ToListAsync();
             return await employeeQuery.ToListAsync();  // Executes DB Query in DB and Get results.
         }
-        public async Task<Employee> GetEmployeeAsync(int employeeId)
+       public async Task GetEmployeeDetailsAsync(int empId)
+        {
+            var employeeDeatails= from emp in _employeeContext.Employees.Where(e => e.Id.Equals(empId))
+                      select emp;
+            if (employeeDeatails.Any())
+            {
+                foreach (var emp in employeeDeatails)
+                {
+                    Console.WriteLine($"{emp.Id} {emp.Name} {emp.Email} {emp.Salary} {emp.DepartmentId}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Data not found for this employeeId{empId}");
+            }
+
+            
+        }
+            public async Task<Employee> GetEmployeeAsync(int employeeId)
         {
             return await _employeeContext.Employees.FindAsync(employeeId);
         }
@@ -170,6 +203,20 @@ namespace EmployeePlayGround.Infrastructure.Repositories
             var employeeToBeDeleted = await GetEmployeeAsync(employeeId);
             _employeeContext.Employees.Remove(employeeToBeDeleted);
             await _employeeContext.SaveChangesAsync();
+        }
+
+        public bool CheckEmployeeEmail(string email)
+        {
+            var result = from department in _employeeContext.Employees.Where(d => d.Email.Equals(email))
+                         select department;
+            if (result.Any())
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }
