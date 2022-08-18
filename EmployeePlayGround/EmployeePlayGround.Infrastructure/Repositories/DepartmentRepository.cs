@@ -61,7 +61,7 @@ namespace EmployeePlayGround.Infrastructure.Repositories
 
         }
 
-        public bool CheckDepatment(string depatmentName)
+        public bool IsExitorNot(string? depatmentName=null,int? departmentId=null)
         {
             var result = from department in _employeeContext.Departments.Where(d => d.Name.Equals(depatmentName))
                          select department;
@@ -75,32 +75,26 @@ namespace EmployeePlayGround.Infrastructure.Repositories
             }
 
         }
-        public async Task<IEnumerable<Department>> GetDepartmentsAsync(int pageIndex, int pageSize, string sortField, string sortOrder = "asc", string? filterText = null)
+        public async Task<IEnumerable<DepartmentDto>> GetDepartmentsAsync(int pageIndex, int pageSize, string sortField, string sortOrder = "asc", string? filterText = null)
         {
-            IEnumerable<Department>? departmentQuery = null;
-            if (sortOrder == "des")
+            IEnumerable<DepartmentDto>? departmentQuery = new List<DepartmentDto>();
+            var departmentList =await (from department in _employeeContext.Departments.Where(e => filterText == null || e.Name.ToLower().Contains(filterText))
+                                   select new DepartmentDto
+                                   {
+                                       Id=department.Id,
+                                       Name=department.Name
+                                   }).ToListAsync();
+                                   
+            if (sortOrder == "desc")
             {
-                
                 switch (sortField)
                 {
                     case "Id":
-                        departmentQuery = (from department in _employeeContext.Departments.Where(e => filterText == null || e.Name.ToLower().Contains(filterText)).OrderByDescending(e => e.Id)
-                                           select new Department
-                                           {
-                                               Id = department.Id,
-                                               Name = department.Name,
-
-                                           });
+                        departmentQuery = departmentList.OrderByDescending(d => d.Id);
 
                         break;
                     case "Name":
-                        departmentQuery = (from department in _employeeContext.Departments.Where(e => filterText == null || e.Name.ToLower().Contains(filterText)).OrderByDescending(e => e.Name)
-                                           select new Department
-                                           {
-                                               Id = department.Id,
-                                               Name = department.Name,
-
-                                           });
+                        departmentQuery = departmentList.OrderByDescending(d => d.Name);
                         break;
                 }
                 return departmentQuery;
@@ -110,23 +104,11 @@ namespace EmployeePlayGround.Infrastructure.Repositories
                 switch (sortField)
                 {
                     case "Id":
-                        departmentQuery = (from department in _employeeContext.Departments.Where(e => filterText==null || e.Name.ToLower().Contains(filterText)).OrderBy(e => e.Id)
-                                           select new Department
-                                           {
-                                               Id = department.Id,
-                                               Name = department.Name,
-
-                                           });
+                        departmentQuery = departmentList.OrderBy(d => d.Id); 
 
                         break;
                     case "Name":
-                        departmentQuery = (from department in _employeeContext.Departments.Where(e => filterText == null || e.Name.ToLower().Contains(filterText)).OrderBy(e => e.Name)
-                                           select new Department
-                                           {
-                                               Id = department.Id,
-                                               Name = department.Name,
-
-                                           });
+                        departmentQuery = departmentList.OrderBy(d => d.Name); 
                         break;
                 }
                 return departmentQuery;

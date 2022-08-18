@@ -7,16 +7,18 @@ namespace EmployeePlayGround.Infrastructure.Services
 {
     public class EmployeePlayGroundService
     {
-        EmployeeContext employeeContext = new EmployeeContext();
-        bool valid = false;
-        public async Task CurdOperctionAsync(int value)
+       
+        public async Task CrudOperctionAsync(int value)
         {
-                if (value == 1)
+            EmployeeContext employeeContext = new EmployeeContext();
+            bool inValid = false;
+
+            if (value == 1)
                 {
                 try { 
                     IDepartmentRepository departmentRepository = new DepartmentRepository(employeeContext);
                     Console.WriteLine("PRESS 1: Add department details");
-                    Console.WriteLine("PRESS 2: update department details");
+                    Console.WriteLine("PRESS 2: Update department details");
                     Console.WriteLine("PRESS 3: Get department details");
                     Console.WriteLine("PRESS 4: Get departments ");
                     int deptData = Convert.ToInt32(Console.ReadLine());
@@ -28,7 +30,7 @@ namespace EmployeePlayGround.Infrastructure.Services
                     {
                         case 1:
                             //await departmentRepository.CreateAsync(new Department() { Id = 1, Name = "HR" });
-                            Console.WriteLine("how many departments add");
+                            Console.WriteLine("How many department records, do you want to add?");
                             int addDepartmentCount = Convert.ToInt32(Console.ReadLine());
                             for (int i = 0; i < addDepartmentCount; i++)
                             {
@@ -38,38 +40,51 @@ namespace EmployeePlayGround.Infrastructure.Services
                                     {
                                         Console.WriteLine("please enter department name ");
                                         string? departmentName = Console.ReadLine();
-                                        if (departmentRepository.CheckDepatment(departmentName))
+                                        if (departmentRepository.IsExitorNot(departmentName))
                                         {
                                             await departmentRepository.CreateRangeAsync(
                                            new List<Department>
-                                           { new Department()  {Name = departmentName }});
+                                           { new Department()  {Name = string.IsNullOrEmpty(departmentName) ? String.Empty : departmentName }});
 
                                             Console.WriteLine("department added successfully");
                                         }
                                         else
                                         {
                                             Console.WriteLine("This department is already exit please enter another department name");
-                                            valid = true;
+                                            inValid = true;
                                         }
                                     }
                                     catch (FormatException)
                                     {
-                                        valid = true;
-                                        Console.WriteLine("you try with null or string ");
+                                        inValid = true;
+                                        Console.WriteLine("Please enter valid input ");
                                     }
-                                } while (valid);
+                                } while (inValid);
                             }
                             break;
                         case 2:
-                            Console.WriteLine("Enter department Id which department details you update");
-                            int updateDeptId = Convert.ToInt32(Console.ReadLine());
-                            Console.WriteLine("Enter department new name ");
-                            string? deptName = Console.ReadLine();
-                            var updatedDepartmetData = new Department
+                            do
                             {
-                                Name = deptName
-                            };
-                            departmentRepository.UpdateAsync(updateDeptId, updatedDepartmetData);
+                                Console.WriteLine("Enter department Id to update the deportment record");
+                                int updateDeptId = Convert.ToInt32(Console.ReadLine());
+                                if (departmentRepository.IsExitorNot(departmentId: updateDeptId))
+                                {
+                                    Console.WriteLine("Enter department new name ");
+                                    string? deptName = Console.ReadLine();
+                                    var updatedDepartmetData = new Department
+                                    {
+                                        Name = string.IsNullOrEmpty(deptName) ? String.Empty : deptName
+                                    };
+                                    await departmentRepository.UpdateAsync(updateDeptId, updatedDepartmetData);
+                                    inValid = false;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"{updateDeptId} This id not found ");
+                                    inValid = true;
+                                }
+                            } while (inValid);
+                            Console.WriteLine("Successfully updated department record ");
                             break;
                         case 3:
                             Console.WriteLine("Enter department Id ");
@@ -109,22 +124,22 @@ namespace EmployeePlayGround.Infrastructure.Services
                 catch (ArgumentOutOfRangeException arore)
                 {
                     Console.WriteLine(arore.Message);
-                    await CurdOperctionAsync(1);
+                    await CrudOperctionAsync(1);
                 }
                 catch (FormatException)
                 {
-                    Console.WriteLine("you are trying whit string or null ");
-                    await CurdOperctionAsync(1);
+                    Console.WriteLine("Please enter valid input ");
+                    await CrudOperctionAsync(1);
                 }
                 catch (InvalidDataException)
                 {
-                    Console.WriteLine("negative values not allows");
-                    await CurdOperctionAsync(1);
+                    Console.WriteLine("Please enter valid input");
+                    await CrudOperctionAsync(1);
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("Invalid data");
-                    await CurdOperctionAsync(1);
+                    Console.WriteLine("Please enter valid input");
+                    await CrudOperctionAsync(1);
                 }
             }
             else if (value == 2)
@@ -162,12 +177,15 @@ namespace EmployeePlayGround.Infrastructure.Services
                                         Console.WriteLine("please enter Employee depertmentId ");
                                         int depertmentId = Convert.ToInt32(Console.ReadLine());
 
-                                        if (employeeRepository.CheckEmployeeEmail(employeeMail))
+                                        if (employeeRepository.IsExitorNot(employeeMail))
                                         {
                                             await employeeRepository.CreateRangeAsync(
                                             new List<Employee> {
                                             new Employee()
-                                            { Name = employeeName,Salary=employeeSalary,Email=employeeMail,DepartmentId=depertmentId }});
+                                            { Name = string.IsNullOrEmpty(employeeName) ? String.Empty : employeeName,
+                                              Salary=employeeSalary,
+                                              Email=string.IsNullOrEmpty(employeeMail) ? String.Empty : employeeMail,
+                                              DepartmentId=depertmentId }});
 
                                             Console.WriteLine("Employee added successfully");
                                         }
@@ -175,38 +193,51 @@ namespace EmployeePlayGround.Infrastructure.Services
                                         else
                                         {
                                             Console.WriteLine("This employee is already exit please enter another department name");
-                                            valid = true;
+                                            inValid = true;
                                         }
                                     }
                                     catch(FormatException)
                                     {
-                                        valid = true;
-                                        Console.WriteLine("you try with null or string ");
+                                        inValid = true;
+                                        Console.WriteLine("Please enter valid input ");
                                     }
-                                } while (valid);
+                                } while (inValid);
                             }
                             break;
                         case 2:
-                            Console.WriteLine("Enter employee Id which employee details you update");
-                            int updateEmpId = Convert.ToInt32(Console.ReadLine());
-                            Console.WriteLine("please enter Employee new name ");
-                            string? empName = Console.ReadLine();
-                            Console.WriteLine("please enter Employee new salary ");
-                            decimal empSalary = Convert.ToDecimal(Console.ReadLine());
-                            Console.WriteLine("please enter Employee new  email ");
-                            string? empEmail = Console.ReadLine();
-                            Console.WriteLine("please enter Employee new depertmentId ");
-                            int empdepartmentId = Convert.ToInt32(Console.ReadLine());
-
-                            var updatedEmployeeData = new Employee
+                            do
                             {
-                                Name = empName,
-                                Email = empEmail,
-                                Salary = empSalary,
-                                DepartmentId = empdepartmentId
-                            };
-                            var udatedEmployee = await employeeRepository.UpdateAsync(updateEmpId, updatedEmployeeData);
-                            Console.WriteLine($"Updated Employee: {udatedEmployee.Id} {udatedEmployee.Name} {udatedEmployee.Email} {udatedEmployee.Salary}");
+                                Console.WriteLine("Enter employee Id to update the deportment record");
+                                int updateEmpId = Convert.ToInt32(Console.ReadLine());
+                                if (employeeRepository.IsExitorNot(id: updateEmpId))
+                                {
+                                    Console.WriteLine("please enter Employee new name ");
+                                    string? empName = Console.ReadLine();
+                                    Console.WriteLine("please enter Employee new salary ");
+                                    decimal empSalary = Convert.ToDecimal(Console.ReadLine());
+                                    Console.WriteLine("please enter Employee new  email ");
+                                    string? empEmail = Console.ReadLine();
+                                    Console.WriteLine("please enter Employee new depertmentId ");
+                                    int empdepartmentId = Convert.ToInt32(Console.ReadLine());
+
+                                    var updatedEmployeeData = new Employee
+                                    {
+                                        Name = string.IsNullOrEmpty(empName) ? String.Empty : empName,
+                                        Email = string.IsNullOrEmpty(empEmail) ? String.Empty : empEmail,
+                                        Salary = empSalary,
+                                        DepartmentId = empdepartmentId
+                                    };
+                                    var udatedEmployee = await employeeRepository.UpdateAsync(updateEmpId, updatedEmployeeData);
+                                    Console.WriteLine($"Updated Employee: {udatedEmployee.Id} {udatedEmployee.Name} {udatedEmployee.Email} {udatedEmployee.Salary}");
+                                    inValid = false;
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"{updateEmpId} This id not found ");
+                                    inValid = true; 
+                                }
+                            } while (inValid);
+                            Console.WriteLine("Successfully updated employee record ");
                             break;
                         case 3:
                             Console.WriteLine("Enter employee Id which employee details display");
@@ -257,22 +288,23 @@ namespace EmployeePlayGround.Infrastructure.Services
                 {
                     
                     Console.WriteLine(arore.Message);
-                   await CurdOperctionAsync(2);
+                   await CrudOperctionAsync(2);
                 }
                 catch(FormatException)
                 {
-                    Console.WriteLine("you are trying whit string or null ");
-                    await CurdOperctionAsync(2);
+                    Console.WriteLine("Please enter valid input ");
+                    await CrudOperctionAsync(2);
                 }
                 catch(InvalidDataException)
                 {
-                    Console.WriteLine("negative values not allows");
-                    await CurdOperctionAsync(2);
+                    Console.WriteLine("Please enter valid input");
+                    await CrudOperctionAsync(2);
                 }
                 catch(Exception)
                 {
-                    Console.WriteLine("Invalid data");
-                    await CurdOperctionAsync(2);
+                    Console.WriteLine("Please enter valid input" +
+                        "");
+                    await CrudOperctionAsync(2);
                 }
             }
 

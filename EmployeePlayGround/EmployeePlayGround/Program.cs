@@ -21,12 +21,13 @@ var employeePlayGroundService = new EmployeePlayGroundService();
 bool validaction=false;
 do
 {
+    Console.WriteLine("Please select below options to Perform CRUD Operations");
     Console.WriteLine("PRESS 1: Department data");
     Console.WriteLine("PRESS 2: Employee data");
     int input = Convert.ToInt32(Console.ReadLine());
     if (input == 1 || input == 2)
     {
-       await employeePlayGroundService.CurdOperctionAsync(input);
+       await employeePlayGroundService.CrudOperctionAsync(input);
         validaction=false;
     }
     else

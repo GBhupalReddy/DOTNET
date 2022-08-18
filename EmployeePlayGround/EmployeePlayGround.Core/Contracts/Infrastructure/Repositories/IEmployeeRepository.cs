@@ -12,7 +12,7 @@ namespace EmployeePlayGround.Infrastructure.Repositories
         Task<Employee> GetEmployeeAsync(int employeeId);
         //Task<IEnumerable<EmployeeDto>> GetEmployeesAsync();
         Task<Employee> UpdateAsync(int employeeId, Employee employee);
-        public bool CheckEmployeeEmail(string email);
+        public bool IsExitorNot(string? email = null, int? id = null);
         Task GetEmployeeDetailsAsync(int empId);
     }
 }

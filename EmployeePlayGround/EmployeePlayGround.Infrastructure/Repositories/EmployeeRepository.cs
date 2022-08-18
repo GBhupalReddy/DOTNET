@@ -23,7 +23,7 @@ namespace EmployeePlayGround.Infrastructure.Repositories
         //Display the employees in order by
         public async Task<IEnumerable<EmployeeDto>> GetEmployeesAsync(int pageIndex,int pageSize,string sortField, string sortOrder="asc", string? filterText=null)
         {
-            var employeesQuery = from employee in _employeeContext.Employees.Include(e => e.Department).Where ( emp => emp.Name.ToLower().Contains(filterText)
+            var employeesQuery =await (from employee in _employeeContext.Employees.Include(e => e.Department).Where ( emp => emp.Name.ToLower().Contains(filterText)
                        || emp.Email.ToLower().Contains(filterText) || filterText.Equals(null))
                          
                          select new EmployeeDto
@@ -33,24 +33,24 @@ namespace EmployeePlayGround.Infrastructure.Repositories
                              Salary = employee.Salary,
                              Email = employee.Email,
                              DepartmentName = employee.Department.Name
-                         };
+                         }).ToListAsync();
             if (sortOrder=="desc")
             {
                 IEnumerable<EmployeeDto> employeeQuery= new List<EmployeeDto>();
                 switch (sortField)
                 {
                     case "Id":
-                        employeeQuery = await (employeesQuery.OrderByDescending(emp => emp.Id)).ToListAsync();
+                        employeeQuery = employeesQuery.OrderByDescending(emp => emp.Id);
 
                         break;
                     case "Name":
-                        employeeQuery = await (employeesQuery.OrderByDescending(emp => emp.Name)).ToListAsync();
+                        employeeQuery = employeesQuery.OrderByDescending(emp => emp.Name);
                         break;
                     case "Salary":
-                        employeeQuery = await (employeesQuery.OrderByDescending(emp => emp.Salary)).ToListAsync();
+                        employeeQuery = employeesQuery.OrderByDescending(emp => emp.Salary);
                         break;
                     case "Email":
-                        employeeQuery =await (employeesQuery.OrderByDescending(emp => emp.Email)).ToListAsync();
+                        employeeQuery =employeesQuery.OrderByDescending(emp => emp.Email);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -65,16 +65,16 @@ namespace EmployeePlayGround.Infrastructure.Repositories
                 switch (sortField)
                 {
                     case "Id":
-                        employeeQuery = await (employeesQuery.OrderBy(emp => emp.Id)).ToListAsync();
+                        employeeQuery = employeesQuery.OrderBy(emp => emp.Id);
                         break;
                     case "Name":
-                        employeeQuery = await (employeesQuery.OrderBy(emp => emp.Name)).ToListAsync();
+                        employeeQuery = employeesQuery.OrderBy(emp => emp.Name);
                         break;
                     case "Salary":
-                        employeeQuery = await (employeesQuery.OrderBy(emp => emp.Salary)).ToListAsync();
+                        employeeQuery = employeesQuery.OrderBy(emp => emp.Salary);
                         break;
                     case "Email":
-                        employeeQuery = await (employeesQuery.OrderBy((emp) => emp.Email)).ToListAsync();
+                        employeeQuery = employeesQuery.OrderBy((emp) => emp.Email);
                         break;
                     default: throw new ArgumentOutOfRangeException();
                         
@@ -149,9 +149,9 @@ namespace EmployeePlayGround.Infrastructure.Repositories
             await _employeeContext.SaveChangesAsync();
         }
 
-        public bool CheckEmployeeEmail(string email)
+        public bool IsExitorNot(string? email=null,int? id=null)
         {
-            var result = from department in _employeeContext.Employees.Where(d => d.Email.Equals(email))
+            var result = from department in _employeeContext.Employees.Where(d => d.Email.Equals(email) || d.Id.Equals(id))
                          select department;
             if (result.Any())
             {

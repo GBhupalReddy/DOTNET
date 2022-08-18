@@ -1,4 +1,5 @@
-﻿using EmployeePlayGround.Core.Entities;
+﻿using EmployeePlayGround.Core.Dtos;
+using EmployeePlayGround.Core.Entities;
 
 namespace EmployeePlayGround.Core.Contracts.Infrastructure.Repositories
 {
@@ -9,7 +10,7 @@ namespace EmployeePlayGround.Core.Contracts.Infrastructure.Repositories
         Task<Department> UpdateAsync(int employeeId, Department department);
         Task<Department> GetDepartmentAsync(int deptId);
         Task GetDepartmetDeatilsAsync(int deapertmentId);
-        Task<IEnumerable<Department>> GetDepartmentsAsync(int pageIndex, int pageSize, string sortField, string sortOrder = "asc", string? filterText = null);
-        public bool CheckDepatment(string depatmentName);
+        Task<IEnumerable<DepartmentDto>> GetDepartmentsAsync(int pageIndex, int pageSize, string sortField, string sortOrder = "asc", string? filterText = null);
+        public bool IsExitorNot(string? depatmentName = null, int? departmentId = null);
     }
 }
