@@ -4,7 +4,7 @@ using EmployeePlayGround.Core.Entities;
 using EmployeePlayGround.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace EmployeePlayGround.Infrastructure.Repositories
+namespace EmployeePlayGround.Infrastructure.Repositories.EntityFramwork
 {
     public class DepartmentRepository : IDepartmentRepository
     {
@@ -15,22 +15,21 @@ namespace EmployeePlayGround.Infrastructure.Repositories
         }
         public async Task CreateAsync(Department department)
         {
-            // Not ideal way to use DB Context instance here, instead use constuctor injection. 
             using (var employeeContext = new EmployeeContext())
             {
-                employeeContext.Departments.Add(department);
+                await employeeContext.Departments.AddAsync(department);
                 await employeeContext.SaveChangesAsync();
             }
         }
         public async Task CreateRangeAsync(IEnumerable<Department> departments)
         {
-            // Not ideal way to use DB Context instance here, instead use constuctor injection. 
             using (var employeeContext = new EmployeeContext())
             {
                 employeeContext.Departments.AddRange(departments);
                 await employeeContext.SaveChangesAsync();
             }
         }
+
         public async Task<Department> GetDepartmentAsync(int deptId)
         {
             return await _employeeContext.Departments.FindAsync(deptId);
@@ -45,8 +44,8 @@ namespace EmployeePlayGround.Infrastructure.Repositories
         }
         public async Task GetDepartmetDeatilsAsync(int deapertmentId)
         {
-            var department = from dept in _employeeContext.Departments.Where(d => d.Id == deapertmentId)
-                             select dept;
+            var department = await (from dept in _employeeContext.Departments.Where(d => d.Id == deapertmentId)
+                                    select dept).ToListAsync();
             if (department.Any())
             {
                 foreach (var dept in department)
@@ -61,7 +60,7 @@ namespace EmployeePlayGround.Infrastructure.Repositories
 
         }
 
-        public bool IsExitorNot(string? depatmentName=null,int? departmentId=null)
+        public bool IsExitorNot(string? depatmentName = null, int? departmentId = null)
         {
             var result = from department in _employeeContext.Departments.Where(d => d.Name.Equals(depatmentName))
                          select department;
@@ -78,13 +77,13 @@ namespace EmployeePlayGround.Infrastructure.Repositories
         public async Task<IEnumerable<DepartmentDto>> GetDepartmentsAsync(int pageIndex, int pageSize, string sortField, string sortOrder = "asc", string? filterText = null)
         {
             IEnumerable<DepartmentDto>? departmentQuery = new List<DepartmentDto>();
-            var departmentList =await (from department in _employeeContext.Departments.Where(e => filterText == null || e.Name.ToLower().Contains(filterText))
-                                   select new DepartmentDto
-                                   {
-                                       Id=department.Id,
-                                       Name=department.Name
-                                   }).ToListAsync();
-                                   
+            var departmentList = await (from department in _employeeContext.Departments.Where(e => filterText == null || e.Name.ToLower().Contains(filterText))
+                                        select new DepartmentDto
+                                        {
+                                            Id = department.Id,
+                                            Name = department.Name
+                                        }).ToListAsync();
+
             if (sortOrder == "desc")
             {
                 switch (sortField)
@@ -104,15 +103,21 @@ namespace EmployeePlayGround.Infrastructure.Repositories
                 switch (sortField)
                 {
                     case "Id":
-                        departmentQuery = departmentList.OrderBy(d => d.Id); 
+                        departmentQuery = departmentList.OrderBy(d => d.Id);
 
                         break;
                     case "Name":
-                        departmentQuery = departmentList.OrderBy(d => d.Name); 
+                        departmentQuery = departmentList.OrderBy(d => d.Name);
                         break;
                 }
                 return departmentQuery;
             }
+        }
+        public async Task DeleteAsync(int employeeId)
+        {
+            var departmentToBeDeleted = await GetDepartmentAsync(employeeId);
+            _employeeContext.Departments.Remove(departmentToBeDeleted);
+            await _employeeContext.SaveChangesAsync();
         }
     }
 }

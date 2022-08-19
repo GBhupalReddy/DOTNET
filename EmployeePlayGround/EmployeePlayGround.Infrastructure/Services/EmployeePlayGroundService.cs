@@ -2,6 +2,8 @@
 using EmployeePlayGround.Core.Entities;
 using EmployeePlayGround.Infrastructure.Data;
 using EmployeePlayGround.Infrastructure.Repositories;
+using EmployeePlayGround.Infrastructure.Repositories.EntityFramwork;
+using System.Xml.Linq;
 
 namespace EmployeePlayGround.Infrastructure.Services
 {
@@ -11,7 +13,7 @@ namespace EmployeePlayGround.Infrastructure.Services
         public async Task CrudOperctionAsync(int value)
         {
             EmployeeContext employeeContext = new EmployeeContext();
-            bool inValid = false;
+            bool inValid;
 
             if (value == 1)
                 {
@@ -21,6 +23,7 @@ namespace EmployeePlayGround.Infrastructure.Services
                     Console.WriteLine("PRESS 2: Update department details");
                     Console.WriteLine("PRESS 3: Get department details");
                     Console.WriteLine("PRESS 4: Get departments ");
+                    Console.WriteLine("PRESS 5: Delete department");
                     int deptData = Convert.ToInt32(Console.ReadLine());
                     if (deptData < 0)
                     {
@@ -42,11 +45,14 @@ namespace EmployeePlayGround.Infrastructure.Services
                                         string? departmentName = Console.ReadLine();
                                         if (departmentRepository.IsExitorNot(departmentName))
                                         {
-                                            await departmentRepository.CreateRangeAsync(
-                                           new List<Department>
-                                           { new Department()  {Name = string.IsNullOrEmpty(departmentName) ? String.Empty : departmentName }});
+                                           await departmentRepository.CreateRangeAsync(
+                                           new List<Department> {
+                                               new Department()
+                                              {  Name = string.IsNullOrEmpty(departmentName) ? String.Empty : departmentName }  });
+                                            
 
                                             Console.WriteLine("department added successfully");
+                                            inValid = false;
                                         }
                                         else
                                         {
@@ -103,7 +109,7 @@ namespace EmployeePlayGround.Infrastructure.Services
                             Console.WriteLine($"Enter filterText");
                             string? filterText = Console.ReadLine()?.ToLower();
 
-                            var orderDepartmentData = await departmentRepository.GetDepartmentsAsync(pageIndex, pageSize, sortField, sortOrder: sortOrder, filterText: filterText);
+                            var orderDepartmentData = await departmentRepository.GetDepartmentsAsync(pageIndex, pageSize, string.IsNullOrEmpty(sortField) ? String.Empty : sortField , sortOrder: string.IsNullOrEmpty(sortOrder) ? String.Empty : sortOrder, filterText: filterText);
 
                             if (orderDepartmentData.Any())
                             {
@@ -117,6 +123,14 @@ namespace EmployeePlayGround.Infrastructure.Services
                                 Console.WriteLine("DATA NOT FOUND");
                             }
                             break;
+                        case 5:
+                            Console.WriteLine("Enter employee Id");
+                            int deleteDeptId = Convert.ToInt32(Console.ReadLine());
+                            await departmentRepository.DeleteAsync(deleteDeptId);
+                            var deletedRecord = await departmentRepository.GetDepartmentAsync(deleteDeptId);
+                            Console.WriteLine($"  deleted successfully? {deletedRecord == null: true ? false}");
+                            break;
+
                         default:
                             throw new ArgumentOutOfRangeException("Please enter only 1 to 4 ");
                     }
@@ -188,6 +202,7 @@ namespace EmployeePlayGround.Infrastructure.Services
                                               DepartmentId=depertmentId }});
 
                                             Console.WriteLine("Employee added successfully");
+                                            inValid = false;
                                         }
 
                                         else
@@ -258,7 +273,7 @@ namespace EmployeePlayGround.Infrastructure.Services
                             Console.WriteLine($"Enter filterText");
                             string? filterText = Console.ReadLine();
 
-                            var orderEmployeeData = await employeeRepository.GetEmployeesAsync(pageIndex, pageSize, sortField, sortOrder: sortOrder, filterText: filterText);
+                            var orderEmployeeData = await employeeRepository.GetEmployeesAsync(pageIndex, pageSize, string.IsNullOrEmpty(sortField) ? String.Empty : sortField, sortOrder: string.IsNullOrEmpty(sortOrder) ? String.Empty : sortOrder, filterText: filterText);
 
                             if (orderEmployeeData.Any())
                             {
@@ -275,12 +290,13 @@ namespace EmployeePlayGround.Infrastructure.Services
                         case 5:
                             Console.WriteLine("Enter employee Id");
                             int deleteEmpId = Convert.ToInt32(Console.ReadLine());
+                            await employeeRepository.DeleteAsync(deleteEmpId);  
                             var deletedRecord = await employeeRepository.GetEmployeeAsync(deleteEmpId);
                             Console.WriteLine($"  deleted successfully? {deletedRecord == null: true ? false}");
                             break;
                         default:
-                           
                             throw new ArgumentOutOfRangeException("Please enter 1 to 5 numbers only");
+                            
                            
                     }
                 }
@@ -302,11 +318,12 @@ namespace EmployeePlayGround.Infrastructure.Services
                 }
                 catch(Exception)
                 {
-                    Console.WriteLine("Please enter valid input" +
-                        "");
+                    Console.WriteLine("Please enter valid input" );
                     await CrudOperctionAsync(2);
                 }
             }
+
+            
 
         }
     }

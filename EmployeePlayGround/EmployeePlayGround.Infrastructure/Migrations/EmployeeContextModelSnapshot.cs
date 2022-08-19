@@ -24,7 +24,10 @@ namespace EmployeePlayGround.Infrastructure.Migrations
             modelBuilder.Entity("EmployeePlayGround.Core.Entities.Department", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
                         .IsRequired()

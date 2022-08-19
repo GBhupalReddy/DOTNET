@@ -15,8 +15,7 @@ namespace EmployeePlayGround.Infrastructure.EntityConfiguractions
         {
             builder.ToTable("Department");
 
-            builder.Property(e => e.Id).ValueGeneratedNever();
-
+           
             builder.Property(e => e.Name).HasMaxLength(20);
         }
     }
