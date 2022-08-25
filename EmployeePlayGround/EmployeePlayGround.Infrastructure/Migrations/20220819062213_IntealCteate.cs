@@ -4,7 +4,7 @@
 
 namespace EmployeePlayGround.Infrastructure.Migrations
 {
-    public partial class InitialCreationm : Migration
+    public partial class IntealCteate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,7 +12,8 @@ namespace EmployeePlayGround.Infrastructure.Migrations
                 name: "Department",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>

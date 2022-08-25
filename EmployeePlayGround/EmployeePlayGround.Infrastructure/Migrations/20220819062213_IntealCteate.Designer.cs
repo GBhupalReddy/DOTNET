@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeePlayGround.Infrastructure.Migrations
 {
     [DbContext(typeof(EmployeeContext))]
-    [Migration("20220812070523_InitialCreationm")]
-    partial class InitialCreationm
+    [Migration("20220819062213_IntealCteate")]
+    partial class IntealCteate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -26,7 +26,10 @@ namespace EmployeePlayGround.Infrastructure.Migrations
             modelBuilder.Entity("EmployeePlayGround.Core.Entities.Department", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Name")
                         .IsRequired()
